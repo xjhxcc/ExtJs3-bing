@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="./ext-3.3.0/resources/css/ext-all.css" />
+    <script type="text/javascript" src="./ext-3.3.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="./ext-3.3.0/ext-all.js"></script>
+    <style>
+       body{
+           background: url('back.jpg') no-repeat;
+           background-size: 100%;
+       }
+        .container{
+            position: relative;
+        }
+        .logo{
+                background: transparent url('bing.png') no-repeat;
+                position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="test"></div>
+    <div id="input"></div>
+</body>
+<script>
+    Ext.onReady(function () {
+    var container = new Ext.Container({
+        id:'container',
+        renderTo: 'test',
+        layout: 'table',
+        cls:'container',
+        y:200,
+        layoutConfig: {
+            column: 2
+        },
+        items: [
+            {
+                colspan:1,
+                xtype: 'container',
+                layout: 'hbox',
+                x: 150,
+                width:150,
+                height: 50,
+                cls: 'logo'
+            },
+            {
+                xtype: 'tabpanel',
+                width: 500,
+                height: 100,
+                activeTab: 0,
+                plain:true,
+                style: 'position: relative; left: 150px',
+                items: [
+                    {
+                        title: '国内版',
+                        items: [
+                            {
+                                id: 'content',
+                                triggerClass: 'x-form-search-trigger',
+                                xtype: 'trigger',
+                                width: 500,
+                                height: 50,
+                                
+                                onTriggerClick: function (e) {
+                                    
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        title: '国际版',
+                        items: [
+                            {
+                                id: 'content',
+                                triggerClass: 'x-form-search-trigger',
+                                xtype: 'trigger',
+                                width: 500,
+                                height: 50,                                
+                                onTriggerClick: function (e) {
+                                    
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    })
+})
+</script>
+
+</html>
