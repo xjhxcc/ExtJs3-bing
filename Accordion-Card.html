@@ -1,0 +1,175 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="./ext-3.3.0/resources/css/ext-all.css" />
+    <script type="text/javascript" src="./ext-3.3.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="./ext-3.3.0/ext-all.js"></script>
+</head>
+
+<body>
+
+</body>
+<script>
+    Ext.onReady(function () {
+        var navHandler = function (direction) {
+            var wizard = Ext.getCmp('wizard').layout;
+            var prev = Ext.getCmp('move-prev');
+            var next = Ext.getCmp('move-next');
+            var activeId = wizard.activeItem.id;
+            if (activeId == 'card-0') {
+                if (direction == 1) {
+                    wizard.setActiveItem(1);
+                    prev.setDisabled(false);
+                }
+            }
+            else if (activeId == 'card-1') {
+                if (direction == -1) {
+                    wizard.setActiveItem(0);
+                    prev.setDisabled(true);
+                } else {
+                    wizard.setActiveItem(2);
+                    next.setDisabled(true);
+                }
+                var answer1;
+                var radioValue = Ext.getCmp('radio').items;
+                for (var i = 0; i < radioValue.length; i++) {
+                    if (radioValue.get(i).checked) {
+                        answer1 = radioValue.get(i).boxLabel;
+                    }
+                }
+
+                var answer50 = '';
+                var checkBoxValue = Ext.getCmp('checkbox').items;
+                for (var i = 0; i < checkBoxValue.length; i++) {
+                    if (checkBoxValue.get(i).checked) {
+                        answer50 += checkBoxValue.get(i).boxLabel + ",";
+                    }
+                }
+
+                answer = {
+                    answer1: answer1,
+                    answer50: answer50
+                }
+
+                if (answer1 === undefined || answer50 === "") {
+                    Ext.get('answer').dom.innerHTML = "<p>还有题没做完哦</p>"
+                } else {
+                    var str = '<p>Q1:番茄酱属于以下哪种垃圾？（单选）</p>' + answer.answer1 +
+                        "<br/><p>Q50:王大叔出门遛狗后，哪些是正确处理狗粑粑的方法？（多选）</p>" + answer.answer50 + "<br/>";
+                    Ext.get('answer').dom.innerHTML = str;
+                }
+            }
+            else if (activeId == 'card-2') {
+                if (direction == -1) {
+                    wizard.setActiveItem(1);
+                    next.setDisabled(false);
+                }
+            }
+        };
+        var viewport = new Ext.Viewport({
+            layout: 'border',
+            items: [{
+                id: 'wizard',
+                region: 'west',
+                width: 600,
+                title: '问卷调查',
+                layout: 'card',
+                activeItem: 0,
+                bodyStyle: 'padding:15px',
+                defaults: {
+                    border: false
+                },
+
+                bbar: [
+                    {
+                        id: 'move-prev',
+                        text: '上一题',
+                        handler: navHandler.createDelegate(this, [-1]),
+                        disabled: true
+                    },
+                    '->',
+                    {
+                        id: 'move-next',
+                        text: '下一题',
+                        handler: navHandler.createDelegate(this, [1])
+                    }
+                ],
+
+                items: [{
+                    id: 'card-0',
+                    items: [
+                        {
+                            xtype: 'fieldset',
+                            id: 'radio',
+                            title: 'Q1:番茄酱属于以下哪种垃圾？（单选）',
+                            autoHeight: true,
+                            defaultType: 'radio',
+                            hideLabels: true,
+                            items: [
+                                { boxLabel: '湿垃圾', inputValue: '1', name: 'q1' },
+                                { boxLabel: '干垃圾', inputValue: '2', name: 'q1' },
+                                { boxLabel: '有害垃圾', inputValue: '3', name: 'q1' },
+                                { boxLabel: '可回收垃圾', inputValue: '4', name: 'q1' }
+                            ]
+                        }
+                    ]
+                }, {
+                    id: 'card-1',
+                    items: [{
+                        xtype: 'fieldset',
+                        id: 'checkbox',
+                        title: 'Q50:王大叔出门遛狗后，哪些是正确处理狗粑粑的方法？（多选）',
+                        autoHeight: true,
+                        defaultType: 'checkbox',
+                        hideLabels: true,
+                        items: [
+                            { boxLabel: '把粑粑用废报纸包好带回家冲掉', inputValue: '1' },
+                            { boxLabel: '受污染的垃圾按有害垃圾处理', inputValue: '2' },
+                            { boxLabel: '没受污染的垃圾按可回收垃圾处理', inputValue: '3' },
+                            { boxLabel: '受污染的垃圾浸水后按湿垃圾处理', inputValue: '4' }
+                        ]
+                    }]
+                },
+                {
+                    id: 'card-2',
+                    items: [
+                        {
+                            xtype: 'fieldset',
+                            title: '您的答案是',
+                            items: [
+                                {
+                                    xtype: 'box',
+                                    autoEl: {
+                                        tag: 'div',
+                                        id: 'answer'
+                                    }
+                                },
+                                {
+                                    xtype: 'button',
+                                    height: 30,
+                                    width: 80,
+                                    style: 'margin: 150px 0px 0px 210px;',
+                                    text: '提交',
+                                    handler: function () {
+                                        Ext.Msg.alert('info', 'Congratulate！');
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+
+                }
+                ]
+            },
+            {
+                region: 'center',
+                split: true,
+                border: true
+            }
+            ]
+        });
+    });
+</script>
+
+</html>
