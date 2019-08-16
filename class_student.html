@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="./ext-3.3.0/resources/css/ext-all.css" />
+    <script type="text/javascript" src="./ext-3.3.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="./ext-3.3.0/ext-all.js"></script>
+</head>
+
+<body>
+        <input type="text" id="inputName">
+        <button id="addButton">add</button>
+</body>
+<script>
+     Ext.onReady(function () {
+            var selectedNode;
+            var tree = new Ext.tree.TreePanel({
+                id: 'tree',
+                useArrows: true,
+                border: false,
+                enableDD: true,
+                listeners: {
+                    click: function (node) {
+                        selectedNode = node
+                    },
+                    contextmenu: function (node, e) {
+                        node.select();
+                        var c = node.getOwnerTree().contextMenu;
+                        c.contextNode = node;
+                        c.showAt(e.getXY());
+                        // selectedNode = node
+                    }
+                },
+                loader: new Ext.tree.TreeLoader({
+                    dataUrl: 'class_student_info.txt'
+                }),
+                root: new Ext.tree.AsyncTreeNode({
+                    text: '学生管理',
+                    expanded: true
+                }),
+                contextMenu: new Ext.menu.Menu({
+                    items: [{
+                        id: 'addStudent',
+                        text: 'add student'
+                    }, {
+                        id: 'addClass',
+                        text: 'add class'
+                    },{
+                        id: 'delete',
+                        text: 'delete'
+                    }],
+                    listeners: {
+                        itemclick: function (item) {
+                            switch (item.id) {
+                                case 'addStudent':
+                                    var newStudent = new Ext.tree.TreeNode({
+                                        text: 'New Student',
+                                        leaf: true
+                                    })
+                                    selectedNode.appendChild(newStudent);
+                                    treeEditor.editNode = newStudent;
+                                    treeEditor.startEdit(newStudent.ui.textNode, '');
+                                    break;
+                                case 'addClass':
+                                    let newClass = new Ext.tree.TreeNode({
+                                        text: 'New Class'
+                                    })
+                                    selectedNode.parentNode.appendChild(newClass);
+                                    treeEditor.editNode = newClass;
+                                    treeEditor.startEdit(newClass.ui.textNode, '');
+                                    break;
+                                case 'delete':
+                                    if(selectedNode.parentNode){
+                                        selectedNode.remove();
+                                    }
+                                    break;
+                            }
+                        }
+                    },
+                }),
+                selModel: new Ext.tree.MultiSelectionModel({}),
+            })
+            tree.expandAll();
+            var viewport = new Ext.Viewport({
+                items: [tree]
+            })
+            var treeEditor = new Ext.tree.TreeEditor(tree, {
+                allowBlank: false
+            }, {})
+            Ext.get('addButton').on('click', function () {
+                if (selectedNode === undefined) {
+                    Ext.Msg.alert('error', '请点击要添加的班级或学生');
+                    return;
+                }
+                let value = Ext.get('inputName').getValue();
+                if (selectedNode.isLeaf()) {
+                    let newTreeNode = new Ext.tree.TreeNode({
+                        text: value
+                    })
+                    selectedNode.parentNode.appendChild(newTreeNode);
+                } else {
+                    let newTreeNode = new Ext.tree.TreeNode({
+                        text: value,
+                        children: []
+                    })
+                    selectedNode.parentNode.appendChild(newTreeNode);
+                    
+                }
+            });
+        })
+</script>
+
+</html>

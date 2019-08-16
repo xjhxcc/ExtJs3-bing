@@ -1,0 +1,31 @@
+[
+     {
+                text:'一班',
+                
+                children:
+                [
+                    {
+                        text:'张三',
+                        
+                        leaf:true
+                    },
+                    {
+                        text:'李四',
+                       
+                        leaf:true
+                    }
+                ]
+            },
+            {
+                text:'二班',
+                
+                children:
+                [
+                    {
+                        text:'王五',
+                       
+                        leaf:true
+                    }
+                ]
+            }
+]
