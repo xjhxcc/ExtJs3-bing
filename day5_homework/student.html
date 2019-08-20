@@ -1,0 +1,261 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../ext-3.3.0/resources/css/ext-all.css" />
+    <script type="text/javascript" src="../ext-3.3.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="../ext-3.3.0/ext-all.js"></script>
+    <script type="text/javascript" src="../ext-3.3.0/examples/ux/PagingMemoryProxy.js"></script>
+    <style>
+        .male_backcolor {
+            background-color: blanchedalmond;
+        }
+
+        .female_backcolor {
+            background-color: cadetblue;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="grid"></div>
+</body>
+<script>
+    Ext.onReady(function () {
+        var sm = new Ext.grid.CheckboxSelectionModel();
+        var gridEditor = new Ext.grid.GridEditor(
+            new Ext.form.TextField({
+                allowBlank: false
+            })
+        );
+        var cm = new Ext.grid.ColumnModel([
+            new Ext.grid.RowNumberer(),
+            sm,
+            {
+                header: '名字', dataIndex: 'name',
+                editor: gridEditor,
+                sortable: true
+            },
+            {
+                header: '班级', dataIndex: 'class',
+                editor: gridEditor,
+                sortable: true
+            },
+            {
+                header: '性别',
+                dataIndex: 'sex',
+                editor: gridEditor
+            },
+            {
+                header: '年龄', dataIndex: 'age',
+                editor: gridEditor
+            },
+            {
+                header: '生日', dataIndex: 'birthday',
+                editor: new Ext.grid.GridEditor(
+                    new Ext.form.DateField({
+                        format: 'Y-m-d',
+                        allowBlank: false
+                    })
+                ),
+                renderer: Ext.util.Format.dateRenderer('Y-m-d')
+            },
+            // avatarColumn
+        ]);
+        var data = [
+            ['Aria', '1班', 'female', '22', '1997-01-01'],
+            ['Leo', '2班', 'male', '22', '1997-01-01'],
+            ['Lili', '3班', 'female', '22', '1997-01-01'],
+            ['Ethan', '2班', 'male', '22', '1997-01-01'],
+            ['Garson', '3班', 'male', '22', '1997-01-01'],
+            ['Ray', '1班', 'female', '22', '1997-01-01'],
+            ['Louis', '3班', 'male', '22', '1997-01-01'],
+            ['Jerry', '1班', 'female', '22', '1997-01-01'],
+            ['Teng', '2班', 'male', '22', '1997-01-01'],
+            ['Berio', '3班', 'male', '22', '1997-01-01'],
+            ['Penny', '1班', 'female', '22', '1997-01-01'],
+            ['Daryl', '3班', 'male', '22', '1997-01-01'],
+            ['Samson', '3班', 'female', '22', '1997-01-01'],
+            ['Aaron', '2班', 'male', '22', '1997-01-01'],
+            ['Anderson', '3班', 'male', '22', '1997-01-01']
+        ];
+        var store = new Ext.data.GroupingStore({
+            proxy: new Ext.data.PagingMemoryProxy(data),
+            groupField: 'class',
+            reader: new Ext.data.ArrayReader({}, [
+                { name: 'name' },
+                { name: 'class' },
+                { name: 'sex' },
+                { name: 'age' },
+                { name: 'birthday', dateFormat: 'Y-m-d' },
+            ])
+
+        });
+        var Record = Ext.data.Record.create([
+            { name: 'name', type: 'string' },
+            { name: 'class', type: 'string' },
+            { name: 'sex', type: 'sex' },
+            { name: 'age', type: 'int' },
+            { name: 'birthday', type: 'date', dateFormat: 'Y-m-d' },
+        ]);
+        store.load({ params: { start: 0, limit: 10 } });
+        //GridPanel
+        var grid = new Ext.grid.EditorGridPanel({
+            autoHeight: true,
+            renderTo: 'grid',
+            store: store,
+            cm: cm,
+            sm: sm,
+            view: new Ext.grid.GroupingView(),
+            bbar: new Ext.PagingToolbar({
+                pageSize: 10,
+                store: store,
+                displayInfo: true,
+                displayMsg: '显示第{0}条到第{1}条，共{2}条',
+                emptyMsg: "无数据"
+            }),
+            viewConfig: {
+                enableRowBody: true,
+                getRowClass: function (record, rowIndex, p, ds) {
+                    if (record.data.sex === 'male') {
+                        return 'male_backcolor';
+                    } else if (record.data.sex === 'female') {
+                        return 'female_backcolor';
+                    }
+
+                }
+            },
+            tbar: new Ext.Toolbar(['-', {
+                text: 'add',
+                handler: function () {
+                    var p = new Record({
+                        id: '',
+                        name: '',
+                        descn: ''
+                    });
+                    grid.stopEditing();
+                    store.insert(0, p);
+                    grid.startEditing(0, 0);
+                    
+                }
+            }, '-', {
+                    text: 'delete',
+                    handler: function () {
+                        Ext.Msg.confirm('info', 'comfirm delete?', function (btn) {
+                            if (btn == 'yes') {
+                                var sm = grid.getSelectionModel();
+                                var select_row = sm.getSelections();
+                                select_row.forEach((item) => {
+                                    store.remove(item)
+                                })
+                                // console.log(select_row);
+                                // var record = store.getAt(select_row[0]);
+                                // store.remove(record);
+                            }
+                        });
+                    }
+                }, '-', {
+                    text: 'save',
+                    handler: function () {
+                        var m = store.modified.slice(0);
+                        for (var i = 0; i < m.length; i++) {
+                            var record = m[i];
+                            var fields = record.fields.keys;
+
+                            for (var j = 0; j < fields.length; j++) {
+                                var name = fields[j];
+                                var value = record.data[name];
+
+                                var colIndex = cm.findColumnIndex(name);
+                                var rowIndex = store.indexOfId(record.id);
+                                var editor = cm.getCellEditor(colIndex).field;
+
+                                if (!editor.validateValue(value)) {
+                                    Ext.Msg.alert('info', '请输入正确的信息', function () {
+                                        grid.startEditing(rowIndex, colIndex);
+                                    });
+                                    return;
+                                }
+                            }
+                        }
+                        // 
+                        var jsonArray = [];
+                        Ext.each(m, function (item) {
+                            jsonArray.push(item.data);
+                        });
+
+                        Ext.lib.Ajax.request(
+                            'POST',
+                            {
+                                success: function (response) {
+                                    Ext.Msg.alert('success', response.responseText, function () {
+                                        store.reload();
+                                    });
+                                }, failure: function () {
+                                    Ext.Msg.alert("info", "与后台联系的时候出现了问题");
+                                }
+                            },
+                            'data=' + encodeURIComponent(Ext.encode(jsonArray))
+                        );
+                    }
+                }, '-'])
+        });
+        grid.on("rowcontextmenu", function (grid, rowIndex, e) {
+            e.preventDefault();
+            grid.getSelectionModel().selectRow(rowIndex);
+            contextmenu.showAt(e.getXY());
+        });
+        var contextmenu = new Ext.menu.Menu({
+            id: 'theContextMenu',
+            items: [
+                {
+                    text: 'up',
+                    handler: function () {
+                        let store = grid.getStore()
+                        let record = grid.getSelectionModel().getSelected()
+                        let index = store.indexOf(record)
+                        if (index <= 0) {
+                            return
+                        }
+                        store.remove(record)
+                        store.insert(index - 1, record)
+                    }
+                },
+                {
+                    text: 'down',
+                    handler: function () {
+                        let store = grid.getStore()
+                        let record = grid.getSelectionModel().getSelected()
+                        let index = store.indexOf(record)
+                        if (index === store.getCount() - 1) {
+                            return
+                        }
+                        store.remove(record)
+                        store.insert(index + 1, record)
+                    }
+                },
+                {
+                    text: 'first',
+                    handler: function () {
+                        let store = grid.getStore()
+                        let record = grid.getSelectionModel().getSelected()
+                        let index = store.indexOf(record)
+                        store.remove(record)
+                        store.insert(0, record)
+                    }
+                },
+                {
+                    text: 'last',
+                    handler: function () {
+                        let store = grid.getStore()
+                        let record = grid.getSelectionModel().getSelected()
+                        store.remove(record)
+                        store.insert(store.getCount(), record)
+                    }
+                }
+            ]
+        });
+    });
+</script>
+
+</html>
